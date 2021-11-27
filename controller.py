@@ -1,8 +1,9 @@
+import random
+
 from datetime import date
 from typing import Optional
-import random
-from sqlmodel import Session, SQLModel, create_engine, select
-from sqlalchemy import func
+from sqlalchemy import func, desc
+from sqlmodel import Session, SQLModel, create_engine, select, desc
 
 from model import T_Barang, T_Daftar, T_Struk
 
@@ -79,7 +80,11 @@ def INSERT(session: Session, struk: T_Struk, nama_barang: str, jumlah_barang: in
     barang: T_Barang = session.exec(select(T_Barang).where(
         T_Barang.nama == nama_barang)).first()
     if(barang):
-        struk.total_pembelian += jumlah_barang*barang.harga
+        subtotal = jumlah_barang*barang.harga
+        daftar = T_Daftar(t_struk_id=struk.id, t_barang_id=barang.id,
+                          jumlah_barang=jumlah_barang, subtotal=subtotal)
+        struk.total_pembelian += subtotal
+        session.add(daftar)
         session.commit()
         print(
             f"INSERT pada struk {struk.id} sukses. Barang {nama_barang}. Jumlah barang {jumlah_barang}.")
@@ -99,10 +104,9 @@ def PAYMENT(session: Session, struk: T_Struk, nominal: float):
         session.commit()
         print(
             f"PAYMENT pada struk {struk.id} berhasil. Pembayaran {nominal}. Total Pembelian {struk.total_pembelian}. Kembalian {struk.kembalian}. Struk berhasil disimpan dan dihapus dari struk aktif.")
-        return None
+        struk = None
     else:
         print(f"PAYMENT pada struk {struk.id} gagal. Pembayaran tidak cukup.")
-        return struk
 
 
 def CANCEL_STRUK(session: Session, struk: T_Struk):
@@ -124,18 +128,20 @@ def DISPLAY_PEAK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[d
     where_clause: list = [T_Struk.tanggal_pembuatan >= tanggal_awal] if tanggal_akhir == None else [
         T_Struk.tanggal_pembuatan >= tanggal_awal, T_Struk.tanggal_pembuatan <= tanggal_akhir]
     results = session.query(T_Struk.tanggal_pembuatan, func.count(
-        T_Struk.tanggal_pembuatan)).where(*where_clause).group_by(T_Struk.tanggal_pembuatan)
+        T_Struk.tanggal_pembuatan).label('jumlah')).where(*where_clause).group_by(T_Struk.tanggal_pembuatan).order_by(desc('jumlah')).limit(10)
     print("Tanggal      Jumlah Transaksi")
     for result in results:
         print(f"{result[0]}     {result[1]}")
 
 
-def BEST_PRODUCT(session: Session):
-    results = session.query(T_Daftar.t_barang_id, func.sum(
-        T_Daftar.t_barang_id)).group_by(T_Daftar.t_barang_id)
-    print("ID BARANG      Jumlah Pembelian")
+def BEST_PRODUCT(session: Session, tanggal_awal: date, tanggal_akhir: Optional[date] = None):
+    where_clause: list = [T_Struk.tanggal_pembuatan >= tanggal_awal] if tanggal_akhir == None else [
+        T_Struk.tanggal_pembuatan >= tanggal_awal, T_Struk.tanggal_pembuatan <= tanggal_akhir]
+    results = session.query(T_Barang.nama, func.sum(
+        T_Daftar.t_barang_id).label('jumlah')).join(T_Struk, T_Barang).where(*where_clause).group_by(T_Daftar.t_barang_id).order_by(desc('jumlah')).limit(5)
+    print("Nama Barang      Jumlah Pembelian")
     for result in results:
-        print(f"{result[0]}     {result[1]}")
+        print(f"{result[0]}         {result[1]}")
 
 
 if __name__ == "__main__":
