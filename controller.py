@@ -1,13 +1,12 @@
 from datetime import date
 from typing import Optional
+import random
 from sqlmodel import Session, SQLModel, create_engine, select
 from sqlalchemy import func
 
-from models.T_Barang import T_Barang
-from models.T_Struk import T_Struk
-from models.T_Daftar import T_Daftar
+from model import T_Barang, T_Daftar, T_Struk
 
-engine = create_engine("sqlite:///database.db", echo=True)
+engine = create_engine("sqlite:///database.db", echo=False)
 
 
 def init():
@@ -17,20 +16,53 @@ def init():
     barang_3 = T_Barang(nama="Daia", harga=6500)
     barang_4 = T_Barang(nama="Rinso", harga=4500)
     barang_5 = T_Barang(nama="Sunlight", harga=5000)
+    barang_6 = T_Barang(nama="Sanco", harga=4000)
+    barang_7 = T_Barang(nama="Bimoli", harga=6000)
+    barang_8 = T_Barang(nama="Attack", harga=7000)
+    barang_9 = T_Barang(nama="Formula", harga=8000)
+    barang_10 = T_Barang(nama="Sunsilk", harga=8500)
+    daftar_barang = [barang_1, barang_2, barang_3, barang_4, barang_5,
+                     barang_6, barang_7, barang_8, barang_9, barang_10]
 
-    # struk_1 = T_Struk()
+    daftar_struk = []
+    for i in range(100):
+        struk = T_Struk(tanggal_pembuatan=date(
+            2021, 11, random.randint(1, 30)))
+        daftar_struk.append(struk)
 
     SQLModel.metadata.create_all(engine)
 
     # Create records
     with Session(engine) as session:
-        session.add(barang_1)
-        session.add(barang_2)
-        session.add(barang_3)
-        session.add(barang_4)
-        session.add(barang_5)
+        for barang in daftar_barang:
+            session.add(barang)
 
-        # session.add(struk_1)
+        for struk in daftar_struk:
+            session.add(struk)
+
+        session.commit()
+
+        for struk in daftar_struk:
+            id_barang_1 = random.randint(0, 2)
+            id_barang_2 = random.randint(3, 6)
+            id_barang_3 = random.randint(7, 9)
+            jumlah_barang = random.randint(1, 10)
+
+            daftar_1 = T_Daftar(t_struk_id=struk.id, t_barang_id=daftar_barang[id_barang_1].id,
+                                jumlah_barang=jumlah_barang, subtotal=jumlah_barang*daftar_barang[id_barang_1].harga)
+            daftar_2 = T_Daftar(t_struk_id=struk.id, t_barang_id=daftar_barang[id_barang_2].id,
+                                jumlah_barang=jumlah_barang, subtotal=jumlah_barang*daftar_barang[id_barang_2].harga)
+            daftar_3 = T_Daftar(t_struk_id=struk.id, t_barang_id=daftar_barang[id_barang_3].id,
+                                jumlah_barang=jumlah_barang, subtotal=jumlah_barang*daftar_barang[id_barang_3].harga)
+
+            struk.total_pembelian = daftar_1.subtotal+daftar_2.subtotal+daftar_3.subtotal
+            struk.total_pembayaran = struk.total_pembelian
+            struk.kembalian = 0
+
+            session.add(daftar_1)
+            session.add(daftar_2)
+            session.add(daftar_3)
+
         session.commit()
 
 
@@ -98,8 +130,12 @@ def DISPLAY_PEAK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[d
         print(f"{result[0]}     {result[1]}")
 
 
-def BEST_PRODUCT():
-    return
+def BEST_PRODUCT(session: Session):
+    results = session.query(T_Daftar.t_barang_id, func.sum(
+        T_Daftar.t_barang_id)).group_by(T_Daftar.t_barang_id)
+    print("ID BARANG      Jumlah Pembelian")
+    for result in results:
+        print(f"{result[0]}     {result[1]}")
 
 
 if __name__ == "__main__":
