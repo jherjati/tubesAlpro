@@ -76,9 +76,12 @@ def CREATE_STRUK(session: Session):
     return struk
 
 
-def INSERT(session: Session, struk: T_Struk, nama_barang: str, jumlah_barang: int):
+def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optional[T_Struk] = None,):
     barang: T_Barang = session.exec(select(T_Barang).where(
         T_Barang.nama == nama_barang)).first()
+    if(struk == None):
+        print('INSERT gagal. Tidak ada struk aktif. Silakan membuat struk.')
+        return
     if(barang):
         subtotal = jumlah_barang*barang.harga
         daftar = T_Daftar(t_struk_id=struk.id, t_barang_id=barang.id,
@@ -89,7 +92,7 @@ def INSERT(session: Session, struk: T_Struk, nama_barang: str, jumlah_barang: in
         print(
             f"INSERT pada struk {struk.id} sukses. Barang {nama_barang}. Jumlah barang {jumlah_barang}.")
     else:
-        print('INSERT pada struk gagal. Barang tidak dikenal')
+        print(f'INSERT pada struk gagal. Barang {nama_barang} tidak dikenal')
 
 
 def CALCULATE_STRUK(struk: T_Struk):
@@ -100,19 +103,20 @@ def CALCULATE_STRUK(struk: T_Struk):
 def PAYMENT(session: Session, struk: T_Struk, nominal: float):
     if(nominal > struk.total_pembelian):
         struk.total_pembayaran = nominal
-        struk.kembalian = nominal = struk.total_pembelian
+        struk.kembalian = nominal - struk.total_pembelian
         session.commit()
         print(
             f"PAYMENT pada struk {struk.id} berhasil. Pembayaran {nominal}. Total Pembelian {struk.total_pembelian}. Kembalian {struk.kembalian}. Struk berhasil disimpan dan dihapus dari struk aktif.")
-        struk = None
+        return None
     else:
         print(f"PAYMENT pada struk {struk.id} gagal. Pembayaran tidak cukup.")
+        return struk
 
 
 def CANCEL_STRUK(session: Session, struk: T_Struk):
     session.delete(struk)
     session.commit()
-    struk = None
+    return None
 
 
 def DISPLAY_STRUK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[date] = None):
