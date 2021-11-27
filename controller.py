@@ -1,9 +1,9 @@
 import random
+import typer
 
 from datetime import date
 from typing import Optional
-from sqlalchemy import func, desc
-from sqlmodel import Session, SQLModel, create_engine, select, desc
+from sqlmodel import Session, SQLModel, create_engine, select, desc, func
 
 from model import T_Barang, T_Daftar, T_Struk
 
@@ -80,7 +80,8 @@ def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optio
     barang: T_Barang = session.exec(select(T_Barang).where(
         T_Barang.nama == nama_barang)).first()
     if(struk == None):
-        print('INSERT gagal. Tidak ada struk aktif. Silakan membuat struk.')
+        typer.echo('INSERT '+typer.style("gagal", fg=typer.colors.WHITE, bg=typer.colors.RED,
+                   bold=True)+'. Tidak ada struk aktif. Silakan membuat struk.')
         return
     if(barang):
         subtotal = jumlah_barang*barang.harga
@@ -90,14 +91,15 @@ def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optio
         session.add(daftar)
         session.commit()
         print(
-            f"INSERT pada struk {struk.id} sukses. Barang {nama_barang}. Jumlah barang {jumlah_barang}.")
+            f"INSERT pada struk {struk.id} "+typer.style("sukses", fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True)+f". Barang {nama_barang}. Jumlah barang {jumlah_barang}.")
     else:
-        print(f'INSERT pada struk gagal. Barang {nama_barang} tidak dikenal')
+        typer.echo('INSERT pada struk '+typer.style('gagal', fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True) +
+                   f'. Barang {nama_barang} tidak dikenal')
 
 
 def CALCULATE_STRUK(struk: T_Struk):
-    print(
-        f"CALCULATE_STRUK pada struk {struk.id} berhasil. Total pembelian adalah {struk.total_pembelian}.")
+    typer.echo(
+        f"CALCULATE_STRUK pada struk {struk.id} "+typer.style("berhasil", fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True)+f". Total pembelian adalah {struk.total_pembelian}.")
 
 
 def PAYMENT(session: Session, struk: T_Struk, nominal: float):
@@ -105,11 +107,12 @@ def PAYMENT(session: Session, struk: T_Struk, nominal: float):
         struk.total_pembayaran = nominal
         struk.kembalian = nominal - struk.total_pembelian
         session.commit()
-        print(
-            f"PAYMENT pada struk {struk.id} berhasil. Pembayaran {nominal}. Total Pembelian {struk.total_pembelian}. Kembalian {struk.kembalian}. Struk berhasil disimpan dan dihapus dari struk aktif.")
+        typer.echo(
+            f"PAYMENT pada struk {struk.id} "+typer.style("berhasil", fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True)+f". Pembayaran {nominal}. Total Pembelian {struk.total_pembelian}. Kembalian {struk.kembalian}. Struk berhasil disimpan dan dihapus dari struk aktif.")
         return None
     else:
-        print(f"PAYMENT pada struk {struk.id} gagal. Pembayaran tidak cukup.")
+        typer.echo(
+            f"PAYMENT pada struk {struk.id} "+typer.style("gagal", fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True)+". Pembayaran tidak cukup.")
         return struk
 
 
@@ -123,9 +126,11 @@ def DISPLAY_STRUK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[
     where_clause: list = [T_Struk.tanggal_pembuatan >= tanggal_awal] if tanggal_akhir == None else [
         T_Struk.tanggal_pembuatan >= tanggal_awal, T_Struk.tanggal_pembuatan <= tanggal_akhir]
     daftar_struk = session.exec(select(T_Struk).where(*where_clause))
-    print("ID   Tanggal Pembuatan   Total Pembelian     Total Pembayaran    Kembalian")
+    typer.secho("{:<5} {:<18} {:<17} {:<17} {:<17}".format("ID", "Tanggal Pembuatan", "Total Pembelian", "Total Pembayaran", "Kembalian"),
+                fg=typer.colors.BLUE, bold=True)
     for struk in daftar_struk:
-        print(f"{struk.id}  {struk.tanggal_pembuatan}   {struk.total_pembelian}     {struk.total_pembayaran}    {struk.kembalian}")
+        print("{:<5} {:<18} {:<17} {:<17} {:<17}".format(struk.id, str(struk.tanggal_pembuatan),
+              struk.total_pembelian, struk.total_pembayaran, struk.kembalian))
 
 
 def DISPLAY_PEAK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[date] = None):
@@ -133,9 +138,10 @@ def DISPLAY_PEAK(session: Session, tanggal_awal: date, tanggal_akhir: Optional[d
         T_Struk.tanggal_pembuatan >= tanggal_awal, T_Struk.tanggal_pembuatan <= tanggal_akhir]
     results = session.query(T_Struk.tanggal_pembuatan, func.count(
         T_Struk.tanggal_pembuatan).label('jumlah')).where(*where_clause).group_by(T_Struk.tanggal_pembuatan).order_by(desc('jumlah')).limit(10)
-    print("Tanggal      Jumlah Transaksi")
+    typer.secho("{:<20} {:<10}".format("Tanggal", "Jumlah Transaksi"),
+                fg=typer.colors.BLUE, bold=True)
     for result in results:
-        print(f"{result[0]}     {result[1]}")
+        print("{:<20} {:<10}".format(str(result[0]), result[1]))
 
 
 def BEST_PRODUCT(session: Session, tanggal_awal: date, tanggal_akhir: Optional[date] = None):
@@ -143,9 +149,10 @@ def BEST_PRODUCT(session: Session, tanggal_awal: date, tanggal_akhir: Optional[d
         T_Struk.tanggal_pembuatan >= tanggal_awal, T_Struk.tanggal_pembuatan <= tanggal_akhir]
     results = session.query(T_Barang.nama, func.sum(
         T_Daftar.t_barang_id).label('jumlah')).join(T_Struk, T_Barang).where(*where_clause).group_by(T_Daftar.t_barang_id).order_by(desc('jumlah')).limit(5)
-    print("Nama Barang      Jumlah Pembelian")
+    typer.secho("{:<20} {:<10}".format("Nama Barang", "Jumlah Pembelian"),
+                fg=typer.colors.BLUE, bold=True)
     for result in results:
-        print(f"{result[0]}         {result[1]}")
+        print("{:<20} {:<10}".format(result[0], result[1]))
 
 
 if __name__ == "__main__":
