@@ -76,7 +76,7 @@ def CREATE_STRUK(session: Session):
     return struk
 
 
-def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optional[T_Struk] = None,):
+def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optional[T_Struk] = None):
     barang: T_Barang = session.exec(select(T_Barang).where(
         T_Barang.nama == nama_barang)).first()
     if(struk == None):
