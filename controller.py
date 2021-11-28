@@ -98,11 +98,19 @@ def INSERT(session: Session,  nama_barang: str, jumlah_barang: int, struk: Optio
 
 
 def CALCULATE_STRUK(struk: T_Struk):
+    if(struk == None):
+        typer.echo(
+            'Tidak ada struk aktif. Silakan membuat struk terlebih dahulu.')
+        return
     typer.echo(
         f"CALCULATE_STRUK pada struk {struk.id} "+typer.style("berhasil", fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True)+f". Total pembelian adalah {struk.total_pembelian}.")
 
 
 def PAYMENT(session: Session, struk: T_Struk, nominal: float):
+    if(struk == None):
+        typer.echo(
+            'Tidak ada struk aktif. Silakan membuat struk terlebih dahulu.')
+        return
     if(nominal > struk.total_pembelian):
         struk.total_pembayaran = nominal
         struk.kembalian = nominal - struk.total_pembelian
@@ -117,8 +125,14 @@ def PAYMENT(session: Session, struk: T_Struk, nominal: float):
 
 
 def CANCEL_STRUK(session: Session, struk: T_Struk):
+    if(struk == None):
+        typer.echo(
+            'Tidak ada struk aktif. Silakan membuat struk terlebih dahulu.')
+        return
     session.delete(struk)
     session.commit()
+    typer.echo(
+        'Struk aktif telah dibatalkan.')
     return None
 
 
