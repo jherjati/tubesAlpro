@@ -2,16 +2,15 @@ import typer
 from datetime import date
 from sqlmodel import Session
 from controller import CANCEL_STRUK, PAYMENT, engine, BEST_PRODUCT, CALCULATE_STRUK, CREATE_STRUK, DISPLAY_PEAK, DISPLAY_STRUK, INSERT
-<<<<<<< HEAD
 import typer
-=======
 from model import T_Struk
->>>>>>> 349818e22a03913f0f03efebc2623359fbfc17d3
+
 
 def green_style_text(text):
-    return typer.style(text, 
-                fg=typer.colors.GREEN, bold=True)
-                
+    return typer.style(text,
+                       fg=typer.colors.GREEN, bold=True)
+
+
 def app():
     session = Session(engine)
     menu = {
@@ -29,17 +28,18 @@ def app():
         try:
             typer.secho("{:<20} {:<2}".format("Pilihan", "Menu"),
                         fg=typer.colors.BLUE, bold=True)
-            for key,value in menu.items():
+            for key, value in menu.items():
                 print("{:<20} {:<2}".format(key, value))
 
-            operasi = int(input(green_style_text('Masukan operasi pilihan (dalam angka): ')))
+            operasi = int(input(green_style_text(
+                'Masukan operasi pilihan (dalam angka): ')))
             if operasi == 1:
                 struk = CREATE_STRUK(session=session)
             elif operasi == 2:
                 x = str(input(green_style_text("Masukkan nama barang: ")))
                 y = int(input(green_style_text('Masukkan jumlah barang: ')))
                 INSERT(session=session, struk=struk,
-                        nama_barang=x, jumlah_barang=y)
+                       nama_barang=x, jumlah_barang=y)
             elif operasi == 3:
                 CALCULATE_STRUK(struk=struk)
             elif operasi == 4:
@@ -48,79 +48,64 @@ def app():
             elif operasi == 5:
                 struk = CANCEL_STRUK(session=session, struk=struk)
             elif operasi == 6:
-                x = str(input(green_style_text('Masukkan date awal, DD-MM-YYYY: ')))
-                y = str(input(green_style_text('Masukkan date akhir, DD-MM-YYYY: ')))
+                x = str(input(green_style_text(
+                    'Masukkan date awal, DD-MM-YYYY: ')))
+                y = str(input(green_style_text(
+                    'Masukkan date akhir, DD-MM-YYYY: ')))
                 awal = list(map(int, x.split("-")))
                 if y:
                     akhir = list(map(int, y.split("-")))
-                    DISPLAY_STRUK(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]), 
-                                tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
+                    DISPLAY_STRUK(session=session,
+                                  tanggal_awal=date(awal[2], awal[1], awal[0]),
+                                  tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
                 else:
-                    DISPLAY_STRUK(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]))
+                    DISPLAY_STRUK(session=session,
+                                  tanggal_awal=date(awal[2], awal[1], awal[0]))
             elif operasi == 7:
-                x = str(input(green_style_text('Masukkan date awal, DD-MM-YYYY: ')))
-                y = str(input(green_style_text('Masukkan date akhir, DD-MM-YYYY: ')))
+                x = str(input(green_style_text(
+                    'Masukkan date awal, DD-MM-YYYY: ')))
+                y = str(input(green_style_text(
+                    'Masukkan date akhir, DD-MM-YYYY: ')))
                 awal = list(map(int, x.split("-")))
                 if y:
                     akhir = list(map(int, y.split("-")))
-                    DISPLAY_PEAK(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]), 
-                                tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
+                    DISPLAY_PEAK(session=session,
+                                 tanggal_awal=date(awal[2], awal[1], awal[0]),
+                                 tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
                 else:
-                    DISPLAY_PEAK(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]))
+                    DISPLAY_PEAK(session=session,
+                                 tanggal_awal=date(awal[2], awal[1], awal[0]))
             elif operasi == 8:
-                x = str(input(green_style_text('Masukkan date awal, DD-MM-YYYY: ')))
-                y = str(input(green_style_text('Masukkan date akhir, DD-MM-YYYY: ')))
+                x = str(input(green_style_text(
+                    'Masukkan date awal, DD-MM-YYYY: ')))
+                y = str(input(green_style_text(
+                    'Masukkan date akhir, DD-MM-YYYY: ')))
                 awal = list(map(int, x.split("-")))
                 if y:
                     akhir = list(map(int, y.split("-")))
-                    BEST_PRODUCT(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]), 
-                                tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
+                    BEST_PRODUCT(session=session,
+                                 tanggal_awal=date(awal[2], awal[1], awal[0]),
+                                 tanggal_akhir=date(akhir[2], akhir[1], akhir[0]))
                 else:
-                    BEST_PRODUCT(session=session, 
-                                tanggal_awal=date(awal[2], awal[1], awal[0]))
+                    BEST_PRODUCT(session=session,
+                                 tanggal_awal=date(awal[2], awal[1], awal[0]))
             elif operasi == 9:
-                typer.echo(typer.style("Anda Berhasil Keluar", 
-                    fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True))
+                typer.echo(typer.style("Anda Berhasil Keluar",
+                                       fg=typer.colors.WHITE, bg=typer.colors.GREEN, bold=True))
                 break
             else:
-                typer.echo(typer.style("Pilihan Operasi Tidak Dikenali", 
-                    fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True))
+                typer.echo(typer.style("Pilihan Operasi Tidak Dikenali",
+                                       fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True))
 
             print(green_style_text("-----"))
         except Exception as err:
-            typer.echo(typer.style(f"Terjadi kesalahan: {err}", 
-                    fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True))
-            
+            typer.echo(typer.style(f"Terjadi kesalahan: {err}",
+                                   fg=typer.colors.WHITE, bg=typer.colors.RED, bold=True))
 
 
-    # struk = CREATE_STRUK(session=session)
-    # INSERT(session=session, struk=struk,
-    #        nama_barang="Pepsodent", jumlah_barang=2)
-    # INSERT(session=session, struk=struk,
-    #        nama_barang="Ciptadent", jumlah_barang=4)
-    # INSERT(session=session, struk=struk,
-    #        nama_barang="Rinso", jumlah_barang=3)
-    # INSERT(session=session, struk=struk,
-    #        nama_barang="Daia", jumlah_barang=1)
-    # CALCULATE_STRUK(struk=struk)
+def app1():
+    session = Session(engine)
 
-    # struk = PAYMENT(session=session, struk=struk, nominal=50000)
-    # # kalau PAYMENT berhasil struk jadi None, kalau nggak tetep struk, lihat return value fungsi di atas
-
-    # struk = CANCEL_STRUK(session=session, struk=struk)
-    # # pasti jadi null mengingat CANCEL_STRUK selalu return null
-
-<<<<<<< HEAD
-    # DISPLAY_STRUK(session=session, tanggal_awal=date(
-    #     2021, 11, 5), tanggal_akhir=date(2021, 11, 20))
-    # DISPLAY_PEAK(session=session, tanggal_awal=date(2021, 11, 5))
-    # BEST_PRODUCT(session=session, tanggal_awal=date(2021, 11, 5))
-=======
     def toInt(n):
         return int(n)
 
@@ -192,13 +177,15 @@ def app():
             Jika rentang waktu tidak diberikan maka pencarian top 5 dilakukan pada semua transaksi.
             Jika hanya satu tanggal yang diberikan maka pencarian top 5 dilakukan mulai dari transaksi yang ada sejak tanggal tersebut.
             Kedua parameter tanggal dalam format YYYY-MM-DD.
+
+            9. EXIT
+            Keluar dari aplikasi
             """)
         elif COMMAND == 'EXIT':
             break
         else:
             print('Command tersebut tidak dikenali')
->>>>>>> 349818e22a03913f0f03efebc2623359fbfc17d3
 
 
 if __name__ == "__main__":
-    app()
+    app1()
