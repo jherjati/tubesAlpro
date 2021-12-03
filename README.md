@@ -1,6 +1,6 @@
 # Panduan Penggunaan
 
-Berikut adalah cara penggunaan program dalam repo ini
+Repo ini dapat diakses secara publik [di repo tubesAlpro](https://github.com/jherjati/tubesAlpro). Berikut adalah cara penggunaan program dalam repo ini:
 
 ## Penyiapan Environment
 
@@ -8,8 +8,8 @@ Clone atau download repo ini dan pastikan poetry (python package manager) telah 
 
 ## Pengisian Data (Opsional)
 
-Repo telah berisi data pada file database.db yang berjalan dalam SQLite. Namun Anda dapat bereksperimen dengan mengganti data yang ada. Caranya dengan menghapus database.db lalu jalankan 'python controller.py' pada terminal. File database.db akan muncul kembali, data akan berisi 100 struk dengan 3 daftar barang pada tiap struk, menjadikannya berjumlah 300 daftar.
+Repo telah berisi data pada file database.db yang berjalan dalam SQLite. Namun Anda dapat bereksperimen dengan mengganti data yang ada. Caranya dengan menghapus `database.db` lalu jalankan `python controller.py` pada terminal. File database.db akan muncul kembali, data akan berisi 100 struk dengan 3 daftar barang pada tiap struk, menjadikannya berjumlah 300 daftar.
 
 ## Mulai Menjalankan
 
-Setelah environment telah siap, Anda hanya perlu menjalankan perintah 'python view.py' pada terminal.
+Setelah environment telah siap, Anda hanya perlu menjalankan perintah `python view.py` atau `poetry run python view.py` pada terminal.
