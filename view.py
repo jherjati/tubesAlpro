@@ -19,7 +19,7 @@ def green_style_text(text):
     return typer.style(text, fg=typer.colors.GREEN, bold=True)
 
 
-def app():
+def choice_app():
     session = Session(engine)
     menu = {
         1: "CREATE STRUCK",
@@ -193,7 +193,7 @@ Menampilkan bantuan terkait fungsionalitas aplikasi.
             )
 
 
-def app1():
+def command_app():
     session = Session(engine)
 
     def toInt(n):
@@ -305,7 +305,7 @@ if __name__ == "__main__":
         )
     )
     interface = int(input(green_style_text("Masukkan Pilihan (1 atau 2): ")))
-    app() if interface == 1 else app1() if interface == 2 else typer.echo(
+    choice_app() if interface == 1 else command_app() if interface == 2 else typer.echo(
         typer.style(
             "Pilihan Operasi Tidak Dikenali",
             fg=typer.colors.WHITE,
