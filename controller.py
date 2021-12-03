@@ -111,7 +111,7 @@ def PAYMENT(session: Session, struk: T_Struk, nominal: float):
         typer.echo(
             'Tidak ada struk aktif. Silakan membuat struk terlebih dahulu.')
         return
-    if(nominal > struk.total_pembelian):
+    if(nominal >= struk.total_pembelian):
         struk.total_pembayaran = nominal
         struk.kembalian = nominal - struk.total_pembelian
         session.commit()
